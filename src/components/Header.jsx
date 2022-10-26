@@ -3,34 +3,24 @@ import cartIcon from '../assets/icons/cart.svg';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Button from './elements/Button';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { decodeToken } from 'react-jwt';
 
-export const Header = ({ cartCount }) => {
+export const Header = ({ cartCount, isLoggedIn, setIsLoggedIn}) => {
+	const token = localStorage.getItem('token');
 	const navigate = useNavigate();
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	const handleLogout = () => {
-		sessionStorage.removeItem('Auth token');
-		sessionStorage.removeItem('User Id');
-		window.dispatchEvent(new Event('storage'));
+		localStorage.removeItem('token');
+		setIsLoggedIn(false);
 		navigate('/');
 	};
 
 	useEffect(() => {
-		const checkAuthToken = () => {
-			const token = sessionStorage.getItem('Auth token');
-			if (token) {
-				setIsLoggedIn(true);
-			} else {
-				setIsLoggedIn(false);
-			}
-		};
-
-		window.addEventListener('storage', checkAuthToken);
-
-		return () => {
-			window.removeEventListener('storage', checkAuthToken);
-		};
+		const myDecodedToken = decodeToken(token);
+		if (myDecodedToken && myDecodedToken._id) {
+			setIsLoggedIn(true);
+		}
 	}, []);
 
 	return (

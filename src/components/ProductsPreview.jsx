@@ -47,7 +47,7 @@ export const ProductsPreview = () => {
 				{products.length > 0 &&
 					products.map((product, index) => {
 						return (
-							<div className='w-full p-3'>
+							<div className='w-full p-3' key={product._id}>
 								<ProductPreviewCard
 									key={product._id}
 									product={product}

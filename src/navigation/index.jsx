@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useState } from 'react';
 import { Header } from '../components/Header';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
@@ -14,14 +15,15 @@ import Inventory from '../pages/Inventory';
 
 const Navigation = () => {
 	const productsInCart = useSelector(cartProducts);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	return (
 		<BrowserRouter>
-			<Header cartCount={productsInCart ? productsInCart.length : 0} />
+			<Header cartCount={productsInCart ? productsInCart.length : 0} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
 			<Routes>
 				<Route path='/' element={<Home />} />
-				<Route path='/login' element={<Login />} />
-				<Route path='/register' element={<Register />} />
+				<Route path='/login' element={<Login setIsLoggedIn={setIsLoggedIn}/>} />
+				<Route path='/register' element={<Register setIsLoggedIn={setIsLoggedIn}/>} />
 				<Route path='/menu' element={<Menu />} />
 				<Route path='/cart' element={<Cart />} />
 				<Route path='/payment-success' element={<PaymentSuccess />} />

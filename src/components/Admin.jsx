@@ -24,8 +24,6 @@ const Admin = () => {
 		if (!myDecodedToken || !myDecodedToken.isAdmin) {
 			navigate('/login');
 		} else {
-			console.log(myDecodedToken);
-			console.log(myDecodedToken.isAdmin);
 			getCartData();
 		}
 	}, []);

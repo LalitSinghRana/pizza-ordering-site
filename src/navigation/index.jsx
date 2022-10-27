@@ -12,6 +12,8 @@ import { cartProducts } from '../stores/cart/cartSlice';
 import { Footer } from '../components/Footer';
 import Admin from '../pages/Admin';
 import Inventory from '../pages/Inventory';
+import Custom from '../pages/Custom';
+import Verify from '../pages/Verify';
 
 const Navigation = () => {
 	const productsInCart = useSelector(cartProducts);
@@ -29,6 +31,8 @@ const Navigation = () => {
 				<Route path='/payment-success' element={<PaymentSuccess />} />
 				<Route path='/admin' element={<Admin />} />
 				<Route path='/inventory' element={<Inventory />} />
+				<Route path='/custom' element={<Custom />} />
+				<Route path='/users/:userId/verify/:token' element={<Verify />} />
 			</Routes>
 			<Footer />
 		</BrowserRouter>

@@ -11,7 +11,7 @@ export const Banner = () => {
 						Get Started Today!
 					</p>
 					<div className='btn-container'>
-						<a href='#pizza-carousle'>
+						<a href='/custom'>
 							<Button>Order Now</Button>
 						</a>
 						<a

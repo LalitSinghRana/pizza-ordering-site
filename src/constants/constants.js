@@ -7,6 +7,7 @@ export const USER_REGISTER = BASE_USER_URL + '/register';
 export const USER_CART = BASE_USER_URL + '/cart';
 export const PLACE_ORDER = BASE_USER_URL + '/place-order';
 export const INVENTORY = BASE_USER_URL + '/inventory';
+export const VERIFY_USER = BASE_USER_URL + '/:userId/verify/:token';
 
 
 export const BASE_ADMIN_URL = 'http://localhost:8080/user/admin';

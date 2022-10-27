@@ -1,15 +1,15 @@
 [+] Create a full stack app using React, MongoDB, and Nodejs.
-[.] Create an admin login and a user login with complete 
+[+] Create an admin login and a user login with complete 
     [+] registration, 
     [+] authorization, 
-    [.] email verification, 
+    [+] email verification, 
     [.] and forgot password system.
 [.] After logging in, 
     [+] users should be able to view the available pizza varieties in the dashboard.
     [.] Also, users can start making the custom pizza with the following flow.
-        [.] Choose any pizza base from 5 options.
-        [.] Next, choose any sauce from 5 options.
-        [.] Select a cheese type from 4 options.
+        [+] Choose any pizza base from 5 options.
+        [+] Next, choose any sauce from 5 options.
+        [+] Select a cheese type from 4 options.
         [.] Opt veggies from many options.
         [.] Choose meat from many options.
         [.] Make sure users can choose three free veggies and one free meat. 

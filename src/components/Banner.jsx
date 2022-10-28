@@ -30,7 +30,7 @@ export const Banner = () => {
         <img
           src={require("../assets/images/pizza_banner.png")}
           alt="banner"
-          className="max-h-full"
+          className="max-h-96"
         />
       </div>
     </div>

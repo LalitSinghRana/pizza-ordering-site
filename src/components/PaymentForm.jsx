@@ -4,17 +4,20 @@ import { getAddress } from "../stores/userInfo/addressSlice";
 import Button from "./elements/Button";
 import { PLACE_ORDER } from "../constants/constants";
 import { useNavigate } from "react-router-dom";
+import { clearCart } from "../stores/cart/cartSlice";
+import { useDispatch } from "react-redux";
 
 export const PaymentForm = () => {
   const cart = useSelector(cartProducts);
   const address = useSelector(getAddress);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const placeOrder = async (event) => {
     event.preventDefault();
     try {
-      console.log("place order");
+      // console.log("place order");
 
       const res = await fetch(PLACE_ORDER, {
         method: "POST",
@@ -33,6 +36,7 @@ export const PaymentForm = () => {
 
       if (data.status === "ok") {
         alert("Order placed...");
+        dispatch(clearCart());
         navigate("/");
       } else throw new Error(data.error);
     } catch (error) {

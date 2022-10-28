@@ -22,7 +22,7 @@ export const cartSlice = createSlice({
       }
     },
 
-    clearCart: (state) => {
+    clearCart: () => {
       return { products: [] };
     },
 

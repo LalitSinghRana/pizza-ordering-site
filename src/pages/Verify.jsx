@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { VERIFY_USER } from "../constants/constants";
 
-const Queue = () => {
+const Verify = () => {
   const [varified, setVarified] = useState(false);
   const param = useParams();
 
@@ -35,4 +35,4 @@ const Queue = () => {
   );
 };
 
-export default Queue;
+export default Verify;

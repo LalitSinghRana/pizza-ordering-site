@@ -4,17 +4,17 @@
     [+] authorization, 
     [+] email verification, 
     [.] and forgot password system.
-[.] After logging in, 
+[+] After logging in, 
     [+] users should be able to view the available pizza varieties in the dashboard.
-    [.] Also, users can start making the custom pizza with the following flow.
+    [+] Also, users can start making the custom pizza with the following flow.
         [+] Choose any pizza base from 5 options.
         [+] Next, choose any sauce from 5 options.
         [+] Select a cheese type from 4 options.
         [.] Opt veggies from many options.
         [.] Choose meat from many options.
         [.] Make sure users can choose three free veggies and one free meat. 
-        [.] On adding extra veggies and meat, charge them accordingly. 
-            [.] Also, display the charges.
+            [.] On adding extra veggies and meat, charge them accordingly. 
+        [+] Also, display the charges.
 [+] In the admin login, 
     [+] create a mini inventory management system keeping track of available pizza base, sauce, cheese, veggies, and meat.
     [+] Then after an order, update the necessary changes in stock and present them in the admin dashboard.

@@ -3,11 +3,13 @@ import { cartProducts } from "../stores/cart/cartSlice";
 import { getAddress } from "../stores/userInfo/addressSlice";
 import Button from "./elements/Button";
 import { PLACE_ORDER } from "../constants/constants";
+import { useNavigate } from "react-router-dom";
 
 export const PaymentForm = () => {
   const cart = useSelector(cartProducts);
   const address = useSelector(getAddress);
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   const placeOrder = async (event) => {
     event.preventDefault();
@@ -27,8 +29,12 @@ export const PaymentForm = () => {
         }),
       });
 
-      if (res.status === "ok") alert("Order placed...");
-      else throw new Error(res.error);
+      const data = await res.json();
+
+      if (data.status === "ok") {
+        alert("Order placed...");
+        navigate("/");
+      } else throw new Error(data.error);
     } catch (error) {
       console.log(error);
       alert("Failed to place order...");

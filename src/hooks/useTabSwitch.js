@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 
 const useTabSwitch = (tabs, defaultTab) => {
-    const [currentTab, setCurrentTab] = useState(defaultTab);
+  const [currentTab, setCurrentTab] = useState(defaultTab);
 
-    useEffect(() => {
-        setCurrentTab(defaultTab)
-    }, [defaultTab])
+  useEffect(() => {
+    setCurrentTab(defaultTab);
+  }, [defaultTab]);
 
-    const handleTabSwitch = (tab) => {
-        setCurrentTab(tab);
-    }
+  const handleTabSwitch = (tab) => {
+    setCurrentTab(tab);
+  };
 
-    return [currentTab, handleTabSwitch];
-}
+  return [currentTab, handleTabSwitch];
+};
 
 export default useTabSwitch;

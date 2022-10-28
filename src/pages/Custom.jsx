@@ -91,23 +91,32 @@ const Custom = () => {
 
   return (
     <div className="bg-white grid items-center justify-items-center py-8 px-4">
-      <h1 className="p-8 text-xl">Make your pizza...</h1>
+      <h1 className="p-8 text-xl font-bold">Make your pizza...</h1>
       <div className="w-full grid items-center justify-items-center">
-        <div>
-          <label className="">Select base</label>
-          <select id="selectBase"></select>
+        <div className="w-9/12 flex m-2 border-2 px-8 py-2 ">
+          <label className="grow">Select base</label>
+          <select
+            className="grow py-1 block py-2 px-4 bg-gray-200"
+            id="selectBase"
+          ></select>
         </div>
-        <div>
-          <label className="">Select sauce</label>
-          <select id="selectSauce"></select>
+        <div className="w-9/12 flex m-2 border-2 px-8 py-2">
+          <label className="grow">Select sauce</label>
+          <select
+            className="grow py-1 block py-2 px-4 bg-gray-200"
+            id="selectSauce"
+          ></select>
         </div>
-        <div>
-          <label className="">Select cheese</label>
-          <select id="selectCheese"></select>
+        <div className="w-9/12 flex m-2 border-2 px-8 py-2">
+          <label className="grow">Select cheese</label>
+          <select
+            className="grow py-1 block py-2 px-4 bg-gray-200"
+            id="selectCheese"
+          ></select>
         </div>
       </div>
       <button
-        className="bg-yellow-300 text-black font-bold py-2 px-4 rounded-full"
+        className="bg-yellow-300 text-black font-bold py-4 px-8 m-8 rounded-full"
         onClick={() => handleClick()}
       >
         Add to cart

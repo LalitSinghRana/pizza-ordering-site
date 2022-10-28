@@ -1,123 +1,47 @@
-import {
-	CardElement,
-	useElements,
-	useStripe,
-	Elements,
-} from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import { useSelector, useDispatch } from 'react-redux';
-import { clearCart, cartProducts } from '../stores/cart/cartSlice';
-import { getAddress, clearAddress } from '../stores/userInfo/addressSlice';
-import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import Button from './elements/Button';
-import { PLACE_ORDER } from '../constants/constants';
-import { decodeToken } from 'react-jwt';
+import { useSelector } from "react-redux";
+import { cartProducts } from "../stores/cart/cartSlice";
+import { getAddress } from "../stores/userInfo/addressSlice";
+import Button from "./elements/Button";
+import { PLACE_ORDER } from "../constants/constants";
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+export const PaymentForm = () => {
+  const cart = useSelector(cartProducts);
+  const address = useSelector(getAddress);
+  const token = localStorage.getItem("token");
 
-export const StripeWrapper = () => {
-	return (
-		<Elements stripe={stripePromise}>
-			<PaymentForm />
-		</Elements>
-	);
-};
-const PaymentForm = () => {
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(null);
-	const dispatch = useDispatch();
-	const cart = useSelector(cartProducts);
-	const address = useSelector(getAddress);
-	const navigate = useNavigate();
-	const elements = useElements();
-	const stripe = useStripe();
+  const placeOrder = async (event) => {
+    event.preventDefault();
+    try {
+      console.log("place order");
 
-	const token = localStorage.getItem('token');
-	// const navigate = useNavigate();
+      const res = await fetch(PLACE_ORDER, {
+        method: "POST",
+        headers: {
+          "x-access-token": token,
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          paymentMethodType: "card",
+          orderItems: cart,
+          shippingAddress: address,
+        }),
+      });
 
-    const placeOrder = async () => {
-        console.log("place order")
-		const res = await fetch(PLACE_ORDER, {
-			method: 'POST',
-			headers: {
-				'x-access-token': token,
-				'Content-type': 'application/json',
-			},
-			body: JSON.stringify({
-				paymentMethodType: 'card',
-				orderItems: cart,
-				userId: '',
-				shippingAddress: address,
-			}),
-		});
+      if (res.status === "ok") alert("Order placed...");
+      else throw new Error(res.error);
+    } catch (error) {
+      console.log(error);
+      alert("Failed to place order...");
+    }
+  };
 
-		const data = await res.json();
-		console.log(data);
-	};
-
-	const handleSubmit = async (e) => {
-		console.log('handleSubmit');
-		// console.log(cart);
-		e.preventDefault();
-
-		// if (!stripe || !elements || !cart?.length || !address) {
-		// 	return;
-		// }
-
-		setLoading(true);
-		try {
-			placeOrder();
-			// const { error: backeEndError, clientSecret } = await fetch(PLACE_ORDER, {
-			// 	method: 'POST',
-			// 	headers: {
-			// 		'Content-type': 'application/json',
-			// 	},
-			// 	body: JSON.stringify({
-			// 		paymentMethodType: 'card',
-			// 		orderItems: cart,
-			// 		userId: '',
-			// 		shippingAddress: address,
-			// 	}),
-			// }).then((r) => r.json());
-
-			// const { error: stripeError, paymentIntent } =
-			// 	await stripe.confirmCardPayment(clientSecret, {
-			// 		payment_method: {
-			// 			card: elements.getElement(CardElement),
-			// 		},
-			// 	});
-			// if (backeEndError || stripeError) {
-			// 	setError(backeEndError || stripeError);
-			// } else if (paymentIntent.status === 'succeeded') {
-			// 	dispatch(clearAddress());
-			// 	dispatch(clearCart());
-			// 	navigate('/payment-success');
-			// }
-		} catch (err) {
-			console.log(err);
-		}
-
-		setLoading(false);
-	};
-
-	return (
-		<form
-			className='md:-2/3 md:mx-auto px-2 pt-1'
-			id='payment-form'
-			onSubmit={handleSubmit}
-		>
-			<label htmlFor='card-element' className='pt-4 text-2xl md:text-center'>
-				Please enter your card details
-			</label>
-			<div className='my-4'>
-				<CardElement id='card-element' />
-			</div>
-			<div className='flex justify-center p-2'>
-				<Button type='submit' disbled={loading}>
-					{loading ? 'Loading...' : 'Pay Now'}
-				</Button>
-			</div>
-		</form>
-	);
+  return (
+    <form className="md:-2/3 md:mx-auto px-2 pt-1" id="payment-form">
+      <div className="flex justify-center p-2">
+        <Button type="submit" onClick={placeOrder}>
+          Pay Now
+        </Button>
+      </div>
+    </form>
+  );
 };

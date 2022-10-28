@@ -1,17 +1,16 @@
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { decodeToken } from "react-jwt";
-import { INVENTORY, UPDATE_ORDER_STATUS } from "../constants/constants";
-import Button from "../components/elements/Button";
-import { ReactComponent as ArrowRightSvg } from "../assets/icons/arrow-right-long-svgrepo-com.svg";
+import { PRODUCT_INVENTORY, CUSTOM_PRODUCT_URL } from "../constants/constants";
+import { addToCart } from "../stores/cart/cartSlice";
+import { useDispatch } from "react-redux";
 
 const Custom = () => {
   const token = localStorage.getItem("token");
-  const navigate = useNavigate();
   const [inventory, setInventory] = useState({});
+  const [customProduct, setCustomProduct] = useState({});
+  const dispatch = useDispatch();
 
-  const getPendingOrders = async () => {
-    const res = await fetch(INVENTORY, {
+  const getInventory = async () => {
+    const res = await fetch(PRODUCT_INVENTORY, {
       headers: {
         "x-access-token": token,
       },
@@ -21,12 +20,25 @@ const Custom = () => {
     setInventory(data.inventory[0]);
   };
 
+  const getCustomProduct = async () => {
+    const res = await fetch(CUSTOM_PRODUCT_URL, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+
+    const data = await res.json();
+    // console.log(data.data[0]);
+    setCustomProduct(data.data[0]);
+  };
+
   useEffect(() => {
-    getPendingOrders();
+    getInventory();
+    getCustomProduct();
   }, []);
 
   useEffect(() => {
-    console.log(inventory);
+    // console.log(inventory);
 
     if (inventory.base) {
       let select = document.getElementById("selectBase");
@@ -34,7 +46,7 @@ const Custom = () => {
       inventory.base.forEach((x) => {
         let el = document.createElement("option");
         el.textContent = x.type;
-        el.value = x.type;
+        el.value = JSON.stringify(x);
         select.appendChild(el);
       });
     }
@@ -45,7 +57,7 @@ const Custom = () => {
       inventory.sauce.forEach((x) => {
         let el = document.createElement("option");
         el.textContent = x.type;
-        el.value = x.type;
+        el.value = JSON.stringify(x);
         select.appendChild(el);
       });
     }
@@ -56,39 +68,29 @@ const Custom = () => {
       inventory.cheese.forEach((x) => {
         let el = document.createElement("option");
         el.textContent = x.type;
-        el.value = x.type;
+        el.value = JSON.stringify(x);
         select.appendChild(el);
       });
     }
   }, [inventory]);
 
-  const updateOrderStatus = async (order) => {
-    await fetch(UPDATE_ORDER_STATUS, {
-      method: "POST",
-      headers: {
-        "x-access-token": token,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        order: order,
-      }),
-    });
-
-    getPendingOrders();
-  };
-
   const handleClick = () => {
-    console.log(inventory);
+    let baseVal = JSON.parse(document.getElementById("selectBase").value);
+
+    let sauceVal = JSON.parse(document.getElementById("selectBase").value);
+    let cheeseVal = JSON.parse(document.getElementById("selectBase").value);
+
+    const customPizza = {
+      ...customProduct,
+      price: baseVal.price + sauceVal.price + cheeseVal.price,
+    };
+
+    dispatch(addToCart(customPizza));
+    alert("Your custom Pizza added to cart");
   };
 
   return (
     <div className="bg-white grid items-center justify-items-center py-8 px-4">
-      <button
-        className="bg-yellow-300 text-black font-bold py-2 px-4 rounded-full"
-        onClick={() => handleClick()}
-      >
-        Toggle to Inventory
-      </button>
       <h1 className="p-8 text-xl">Make your pizza...</h1>
       <div className="w-full grid items-center justify-items-center">
         <div>
@@ -104,6 +106,12 @@ const Custom = () => {
           <select id="selectCheese"></select>
         </div>
       </div>
+      <button
+        className="bg-yellow-300 text-black font-bold py-2 px-4 rounded-full"
+        onClick={() => handleClick()}
+      >
+        Add to cart
+      </button>
     </div>
   );
 };

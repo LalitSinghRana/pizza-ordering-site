@@ -2,7 +2,6 @@ const express = require("express");
 const Order = require("../models/orderModel");
 const User = require("../models/userModel");
 const Token = require("../models/tokenModel");
-const Inventory = require("../models/inventoryModel");
 const jwt = require("jsonwebtoken");
 const { ORDER_STATUS, JWT_SECRET_KEY } = require("../constants");
 const nodemailer = require("nodemailer");
@@ -37,10 +36,9 @@ router.post("/register", async (req, res) => {
     });
 
     console.log(user);
-    sendEmail(user);
+    await generateVerificationToken(user);
 
-    const token = genereateToken(user);
-    res.status(200).send({ status: "ok", token });
+    res.status(200).send({ status: "ok", message: "Please, check you email" });
   } catch (error) {
     console.log(error);
     res.status(500).send({ status: "error", error });
@@ -69,6 +67,8 @@ router.post("/login", async (req, res) => {
 
 router.post("/place-order", async (req, res) => {
   try {
+    // console.log("req.body :", req.body);
+
     const token = req.headers["x-access-token"];
     const decodedToken = verifyAndDecodeToken(token);
     const userId = decodedToken._id;
@@ -94,6 +94,7 @@ router.post("/place-order", async (req, res) => {
 
     return res.status(200).send({ status: "ok", order });
   } catch (error) {
+    // console.log(error);
     res.status(500).send({ status: "error", error });
   }
 });
@@ -161,24 +162,7 @@ router.post("/admin/update-order-status", async (req, res) => {
   }
 });
 
-router.get("/inventory", async (req, res) => {
-  try {
-    // const token = req.headers['x-access-token'];
-    // const decodedToken = verifyAndDecodeToken(token);
-    // const _id = decodedToken._id;
-
-    // if (!_id || !decodedToken.isAdmin) throw new Error('Invalid token');
-
-    const inventory = await Inventory.find({});
-    console.log(inventory);
-
-    return res.status(200).json({ status: "ok", inventory });
-  } catch (err) {
-    res.status(500).json({ status: "error", error: err });
-  }
-});
-
-const sendEmail = async (user) => {
+const generateVerificationToken = async (user) => {
   try {
     console.log(user);
     const verifyToken = await Token.create({
@@ -187,37 +171,41 @@ const sendEmail = async (user) => {
     });
 
     const url = `http://localhost:3000/users/${user._id}/verify/${verifyToken.token}`;
+    const htmlPayload = `<h2>Pizza acc verification</h2>
+      <p><b>Click link : </b>${url}</p>
+    `;
+    const toAddress = user.email;
 
-    let transporter = nodemailer.createTransport({
-      host: "smtp-mail.outlook.com",
-      service: "hotmail",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.USER,
-        pass: process.env.PASS,
-      },
-    });
-
-    let info = await transporter.sendMail({
-      from: process.env.USER,
-      //   to: user.email,
-      to: "lalitrn44@gmail.com",
-      subject: "pizza acc verification",
-      html: `
-        <h1>Pizza acc verification</h1>
-        <p><b>Click link : </b>${url}</p>
-      `,
-    });
-
-    console.log("Email sent successfully");
+    sendEmail(toAddress, htmlPayload);
   } catch (err) {
     console.log("Error while sending email");
   }
 };
 
+const sendEmail = async (toAddress, htmlPayload) => {
+  let transporter = nodemailer.createTransport({
+    host: "smtp-mail.outlook.com",
+    service: "hotmail",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.USER,
+      pass: process.env.PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: process.env.USER,
+    to: toAddress,
+    subject: "pizza acc verification",
+    html: htmlPayload,
+  });
+
+  console.log(`Email sent successfully to ${toAddress}`);
+};
+
 router.get("/test-email", async (req, res) => {
-  await sendEmail(req.body);
+  await generateVerificationToken(req.body);
   res.json({ success: true });
 });
 

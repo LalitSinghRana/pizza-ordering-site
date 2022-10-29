@@ -17,7 +17,7 @@ export const PaymentForm = () => {
   const placeOrder = async (event) => {
     event.preventDefault();
     try {
-      // console.log("place order");
+      // console.log("place order :", cart);
 
       const res = await fetch(PLACE_ORDER, {
         method: "POST",

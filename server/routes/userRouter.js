@@ -7,6 +7,7 @@ const { ORDER_STATUS, JWT_SECRET_KEY } = require("../constants");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const { encrypt } = require("../custom-crypto");
+const Inventory = require("../models/inventoryModel");
 
 const router = express.Router();
 
@@ -92,12 +93,66 @@ router.post("/place-order", async (req, res) => {
 
     if (!order) throw new Error("Failed to create order");
 
+    req.body.orderItems.forEach((item) => {
+      let amt = item.amount;
+      while (amt--) updateInventory(item.base, item.sauce, item.cheese);
+    });
+
+    checkInventory();
+
     return res.status(200).send({ status: "ok", order });
   } catch (error) {
     // console.log(error);
     res.status(500).send({ status: "error", error });
   }
 });
+
+const updateInventory = async (base, sauce, cheese) => {
+  try {
+    await Inventory.updateOne(
+      { "base._id": base },
+      { $inc: { "base.$.quantity": -1 } }
+    );
+
+    await Inventory.updateOne(
+      { "sauce._id": sauce },
+      { $inc: { "sauce.$.quantity": -1 } }
+    );
+
+    await Inventory.updateOne(
+      { "cheese._id": cheese },
+      { $inc: { "cheese.$.quantity": -1 } }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const checkInventory = async () => {
+  try {
+    const inventory = (await Inventory.find({}))[0];
+    let emailBody = ``;
+
+    for (let prop in inventory) {
+      if (prop === "base" || prop === "sauce" || prop === "cheese") {
+        inventory[prop].forEach((x) => {
+          if (x.quantity < 20)
+            emailBody += `${prop} | ${x.type} | ${x.quantity}<br>`;
+        });
+      }
+    }
+
+    // console.log(res);
+
+    if (emailBody) {
+      const toAddress = "lalitrn44@gmail.com";
+      const htmlPayload = `<h3>Below inventories needs to be replenished</h3><br><p>${emailBody}</p>`;
+      const emailSubject = "Alert : low inventories!!!";
+
+      sendEmail(toAddress, htmlPayload, emailSubject);
+    }
+  } catch (error) {}
+};
 
 router.get("/admin/orders", async (req, res) => {
   try {
@@ -175,14 +230,15 @@ const generateVerificationToken = async (user) => {
       <p><b>Click link : </b>${url}</p>
     `;
     const toAddress = user.email;
+    const emailSubject = "pizza site acc verification";
 
-    sendEmail(toAddress, htmlPayload);
+    sendEmail(toAddress, htmlPayload, emailSubject);
   } catch (err) {
     console.log("Error while sending email");
   }
 };
 
-const sendEmail = async (toAddress, htmlPayload) => {
+const sendEmail = async (toAddress, htmlPayload, emailSubject) => {
   let transporter = nodemailer.createTransport({
     host: "smtp-mail.outlook.com",
     service: "hotmail",
@@ -197,7 +253,7 @@ const sendEmail = async (toAddress, htmlPayload) => {
   await transporter.sendMail({
     from: process.env.USER,
     to: toAddress,
-    subject: "pizza acc verification",
+    subject: emailSubject,
     html: htmlPayload,
   });
 

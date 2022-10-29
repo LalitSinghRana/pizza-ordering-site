@@ -75,14 +75,17 @@ const Custom = () => {
   }, [inventory]);
 
   const handleClick = () => {
-    let baseVal = JSON.parse(document.getElementById("selectBase").value);
+    const baseVal = JSON.parse(document.getElementById("selectBase").value);
 
-    let sauceVal = JSON.parse(document.getElementById("selectBase").value);
-    let cheeseVal = JSON.parse(document.getElementById("selectBase").value);
+    const sauceVal = JSON.parse(document.getElementById("selectSauce").value);
+    const cheeseVal = JSON.parse(document.getElementById("selectCheese").value);
 
     const customPizza = {
       ...customProduct,
       price: baseVal.price + sauceVal.price + cheeseVal.price,
+      base: baseVal._id,
+      sauce: sauceVal._id,
+      cheese: cheeseVal._id,
     };
 
     dispatch(addToCart(customPizza));

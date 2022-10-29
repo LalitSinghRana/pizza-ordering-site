@@ -25,13 +25,13 @@ export const Header = ({ cartCount, isLoggedIn, setIsLoggedIn }) => {
 
   return (
     <nav id="header" className="bg-black text-white">
-      <div className="w-full px-4 flex items-center justify-between">
+      <div className="w-full px-4 lg:px-16 flex items-center justify-between">
         <div className="logo-wrapper flex items-center">
           <Link
             to="/"
             className="toggleColor text-white no-underline hover:no-underline font-bold text-2xl lg:text-4xl"
           >
-            <img src={foody} alt="logo" className="w-40 h-40 object-cover" />
+            <img src={foody} alt="logo" className="w-20 h-20 object-cover" />
           </Link>
         </div>
         <div className="nav-menu-wrapper flex items-center justify-between space-x-10">

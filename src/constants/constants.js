@@ -14,3 +14,5 @@ export const BASE_PRODUCTS_URL = "http://localhost:8080/products";
 export const ALL_PRODUCTS = BASE_PRODUCTS_URL + "/all";
 export const PRODUCT_INVENTORY = BASE_PRODUCTS_URL + "/inventory";
 export const CUSTOM_PRODUCT_URL = BASE_PRODUCTS_URL + "/custom";
+
+export const CUSTOM_PRODUCT_ID = "635c18d80624b5338857658e";

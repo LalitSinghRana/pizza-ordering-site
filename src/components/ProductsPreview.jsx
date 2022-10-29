@@ -4,7 +4,7 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../stores/cart/cartSlice";
-import { ALL_PRODUCTS } from "../constants/constants";
+import { ALL_PRODUCTS, CUSTOM_PRODUCT_ID } from "../constants/constants";
 
 export const ProductsPreview = () => {
   const [products, setProducts] = useState([]);
@@ -33,7 +33,10 @@ export const ProductsPreview = () => {
   useEffect(() => {
     fetch(ALL_PRODUCTS)
       .then((response) => response.json())
-      .then((data) => setProducts(data?.data))
+      .then((data) => {
+        let arr = data?.data.filter((x) => x._id !== CUSTOM_PRODUCT_ID);
+        setProducts(arr);
+      })
       .catch((e) => console.log(e));
   }, []);
 

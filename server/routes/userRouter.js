@@ -2,30 +2,17 @@ const express = require("express");
 const Order = require("../models/orderModel");
 const User = require("../models/userModel");
 const Token = require("../models/tokenModel");
-const jwt = require("jsonwebtoken");
-const { ORDER_STATUS, JWT_SECRET_KEY } = require("../constants");
-const nodemailer = require("nodemailer");
-const crypto = require("crypto");
-const { encrypt } = require("../custom-crypto");
-const Inventory = require("../models/inventoryModel");
+const { ORDER_STATUS } = require("../constants");
+const { encrypt } = require("../util/custom-crypto");
+const {
+  generateVerificationToken,
+  updateInventory,
+  checkInventory,
+  genereateToken,
+  verifyAndDecodeToken,
+} = require("../util/helper-functions");
 
 const router = express.Router();
-
-const genereateToken = (user) => {
-  // console.log(user);
-  return jwt.sign(
-    {
-      _id: user._id,
-      isAdmin: user.isAdmin,
-    },
-    JWT_SECRET_KEY
-  );
-};
-
-const verifyAndDecodeToken = (token) => {
-  // console.log(token);
-  return jwt.verify(token, JWT_SECRET_KEY);
-};
 
 router.post("/register", async (req, res) => {
   try {
@@ -107,53 +94,6 @@ router.post("/place-order", async (req, res) => {
   }
 });
 
-const updateInventory = async (base, sauce, cheese) => {
-  try {
-    await Inventory.updateOne(
-      { "base._id": base },
-      { $inc: { "base.$.quantity": -1 } }
-    );
-
-    await Inventory.updateOne(
-      { "sauce._id": sauce },
-      { $inc: { "sauce.$.quantity": -1 } }
-    );
-
-    await Inventory.updateOne(
-      { "cheese._id": cheese },
-      { $inc: { "cheese.$.quantity": -1 } }
-    );
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const checkInventory = async () => {
-  try {
-    const inventory = (await Inventory.find({}))[0];
-    let emailBody = ``;
-
-    for (let prop in inventory) {
-      if (prop === "base" || prop === "sauce" || prop === "cheese") {
-        inventory[prop].forEach((x) => {
-          if (x.quantity < 20)
-            emailBody += `${prop} | ${x.type} | ${x.quantity}<br>`;
-        });
-      }
-    }
-
-    // console.log(res);
-
-    if (emailBody) {
-      const toAddress = "lalitrn44@gmail.com";
-      const htmlPayload = `<h3>Below inventories needs to be replenished</h3><br><p>${emailBody}</p>`;
-      const emailSubject = "Alert : low inventories!!!";
-
-      sendEmail(toAddress, htmlPayload, emailSubject);
-    }
-  } catch (error) {}
-};
-
 router.get("/admin/orders", async (req, res) => {
   try {
     const token = req.headers["x-access-token"];
@@ -175,7 +115,6 @@ router.get("/admin/orders", async (req, res) => {
 router.post("/admin/update-order-status", async (req, res) => {
   try {
     const order = req.body.order;
-    console.log("order :", order);
 
     const token = req.headers["x-access-token"];
     const decodedToken = verifyAndDecodeToken(token);
@@ -198,8 +137,6 @@ router.post("/admin/update-order-status", async (req, res) => {
         break;
     }
 
-    console.log(nextStatus);
-
     const updateResult = await Order.updateOne(
       { _id: order._id },
       {
@@ -208,61 +145,10 @@ router.post("/admin/update-order-status", async (req, res) => {
         },
       }
     );
-
-    console.log(updateResult);
-
     return res.status(200).json({ status: "ok", updateResult });
   } catch (err) {
     res.status(500).json({ status: "error", error: err });
   }
-});
-
-const generateVerificationToken = async (user) => {
-  try {
-    console.log(user);
-    const verifyToken = await Token.create({
-      userId: user._id,
-      token: crypto.randomBytes(32).toString("hex"),
-    });
-
-    const url = `http://localhost:3000/users/${user._id}/verify/${verifyToken.token}`;
-    const htmlPayload = `<h2>Pizza acc verification</h2>
-      <p><b>Click link : </b>${url}</p>
-    `;
-    const toAddress = user.email;
-    const emailSubject = "pizza site acc verification";
-
-    sendEmail(toAddress, htmlPayload, emailSubject);
-  } catch (err) {
-    console.log("Error while sending email");
-  }
-};
-
-const sendEmail = async (toAddress, htmlPayload, emailSubject) => {
-  let transporter = nodemailer.createTransport({
-    host: "smtp-mail.outlook.com",
-    service: "hotmail",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.USER,
-      pass: process.env.PASS,
-    },
-  });
-
-  await transporter.sendMail({
-    from: process.env.USER,
-    to: toAddress,
-    subject: emailSubject,
-    html: htmlPayload,
-  });
-
-  console.log(`Email sent successfully to ${toAddress}`);
-};
-
-router.get("/test-email", async (req, res) => {
-  await generateVerificationToken(req.body);
-  res.json({ success: true });
 });
 
 router.get("/:userId/verify/:token", async (req, res) => {
